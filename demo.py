@@ -14,7 +14,9 @@ from utils import flow_viz
 from utils.utils import InputPadder
 
 
-
+# run this demo by using
+# python demo.py --model=models/raft-things.pth --path=demo-frames
+# or,  python demo.py --model=models/raft-things.pth --path=kitti-test
 DEVICE = 'cuda'
 
 def load_image(imfile):
@@ -43,7 +45,9 @@ def viz(img, flo):
     flo = flow_viz.flow_to_image(flo)
     img_flo = np.concatenate([img, flo], axis=0)
 
-    cv2.imshow('image', img_flo[:, :, [2,1,0]]/255.0)
+    cv2.namedWindow('image and flow', 0)
+    cv2.resizeWindow('image and flow', 1200, 800)
+    cv2.imshow('image and flow', img_flo[:, :, [2,1,0]]/255.0)
     cv2.waitKey()
 
 
