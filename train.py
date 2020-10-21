@@ -15,9 +15,10 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from torch.utils.data import DataLoader
-from raft import RAFT
+from core.raft import RAFT
 import evaluate
-import datasets
+from core.datasets import fetch_dataloader
+from demo import demo
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -41,7 +42,7 @@ except:
 # exclude extremly large displacements
 MAX_FLOW = 400
 SUM_FREQ = 100
-VAL_FREQ = 5000
+VAL_FREQ = 500
 
 
 def sequence_loss(flow_preds, flow_gt, valid, max_flow=MAX_FLOW):
@@ -99,6 +100,9 @@ class Logger:
         self.running_loss = {}
         self.writer = None
 
+    def demo_and_output_image(self, model):
+        return
+
     def _print_training_status(self):
         metrics_data = [self.running_loss[k]/SUM_FREQ for k in sorted(self.running_loss.keys())]
         training_str = "[{:6d}, {:10.7f}] ".format(self.total_steps+1, self.scheduler.get_last_lr()[0])
@@ -149,17 +153,15 @@ def train(args):
     model.cuda()
     model.train()
 
-    if args.stage != 'chairs':
-        model.module.freeze_bn()
+    #if args.stage != 'chairs':
+    #    model.module.freeze_bn()
 
-    train_loader = datasets.fetch_dataloader(args)
+    train_loader = fetch_dataloader(args)
     optimizer, scheduler = fetch_optimizer(args, model)
 
     total_steps = 0
     scaler = GradScaler(enabled=args.mixed_precision)
     logger = Logger(model, scheduler)
-
-    VAL_FREQ = 5000
     add_noise = True
 
     should_keep_training = True
@@ -168,7 +170,6 @@ def train(args):
         for i_batch, data_blob in enumerate(train_loader):
             optimizer.zero_grad()
             image1, image2, flow, valid = [x.cuda() for x in data_blob]
-
             # show_image(image1[0])
             # show_image(image2[0])
 
@@ -183,11 +184,11 @@ def train(args):
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)                
             torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
-            
+
             scaler.step(optimizer)
             scheduler.step()
-            scaler.update()
 
+            scaler.update()
 
             logger.push(metrics)
 
@@ -207,8 +208,8 @@ def train(args):
                 logger.write_dict(results)
                 
                 model.train()
-                if args.stage != 'chairs':
-                    model.module.freeze_bn()
+                #if args.stage != 'chairs':
+                #    model.module.freeze_bn()
             
             total_steps += 1
 

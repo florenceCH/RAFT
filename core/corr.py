@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from utils.utils import bilinear_sampler, coords_grid
+from core.utils.utils import bilinear_sampler, coords_grid
 
 
 class CorrBlock:
@@ -22,8 +22,9 @@ class CorrBlock:
 
     def __call__(self, coords):
         r = self.radius
-        coords = coords.permute(0, 2, 3, 1)
-        batch, h1, w1, _ = coords.shape
+        # coords = coords.permute(0, 2, 3, 1)
+        # batch, h1, w1, _ = coords.shape
+        batch, _, h1, w1 = coords.shape
 
         out_pyramid = []
         for i in range(self.num_levels):
@@ -52,5 +53,5 @@ class CorrBlock:
         
         corr = torch.matmul(fmap1.transpose(1,2), fmap2)
         corr = corr.view(batch, ht, wd, 1, ht, wd)
-        return corr  / torch.sqrt(torch.tensor(dim).float())
+        return corr / torch.sqrt(torch.tensor(dim).float())
 

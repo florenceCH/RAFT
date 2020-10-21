@@ -9,14 +9,15 @@ import numpy as np
 import torch
 from PIL import Image
 
-from raft import RAFT
-from utils import flow_viz
-from utils.utils import InputPadder
+from core.raft import RAFT
+from core.utils import flow_viz
+from core.utils.utils import InputPadder
 
 
 # run this demo by using
 # python demo.py --model=models/raft-things.pth --path=demo-frames
 # or,  python demo.py --model=models/raft-things.pth --path=kitti-test
+# or, python demo.py --model=checkpoints/sintel-model.pth --path=sintel-test
 DEVICE = 'cuda'
 
 def load_image(imfile):
