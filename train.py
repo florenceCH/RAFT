@@ -42,7 +42,7 @@ except:
 # exclude extremly large displacements
 MAX_FLOW = 400
 SUM_FREQ = 100
-VAL_FREQ = 500
+VAL_FREQ = 5000
 
 
 def sequence_loss(flow_preds, flow_gt, valid, max_flow=MAX_FLOW):
@@ -139,7 +139,9 @@ class Logger:
             self.writer.add_scalar(key, results[key], self.total_steps)
 
     def close(self):
-        self.writer.close()
+        if self.writer is not None:
+            self._watcher.stop()
+            self._watcher.close()
 
 
 def train(args):
@@ -216,7 +218,8 @@ def train(args):
             if total_steps > args.num_steps:
                 should_keep_training = False
                 break
-
+            if(total_steps+1%VAL_FREQ==0):
+                print("This is epochs: {}".format(total_steps))
     logger.close()
     PATH = 'checkpoints/%s.pth' % args.name
     torch.save(model.state_dict(), PATH)
