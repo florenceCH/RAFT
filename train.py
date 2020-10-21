@@ -192,10 +192,10 @@ def train(args):
 
             logger.push(metrics)
 
-            if total_steps % VAL_FREQ == VAL_FREQ - 1:
+            if total_steps + 1 % VAL_FREQ == 0:
                 PATH = 'checkpoints/%d_%s.pth' % (total_steps+1, args.name)
                 torch.save(model.state_dict(), PATH)
-
+                '''
                 results = {}
                 for val_dataset in args.validation:
                     if val_dataset == 'chairs':
@@ -210,7 +210,7 @@ def train(args):
                 model.train()
                 #if args.stage != 'chairs':
                 #    model.module.freeze_bn()
-            
+                '''
             total_steps += 1
 
             if total_steps > args.num_steps:

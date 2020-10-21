@@ -47,7 +47,7 @@ def viz(img, flo):
     img_flo = np.concatenate([img, flo], axis=0)
 
     cv2.namedWindow('image and flow', 0)
-    cv2.resizeWindow('image and flow', 1200, 800)
+    cv2.resizeWindow('image and flow', 1200, 768)
     cv2.imshow('image and flow', img_flo[:, :, [2,1,0]]/255.0)
     cv2.waitKey()
 
